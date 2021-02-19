@@ -21,7 +21,10 @@ export const useRetry = (
     (delay?: number) => setNext(Date.now() + (delay ?? 0)),
     []
   );
-  const stop = useCallback(() => setNext(0), []);
+  const stop = useCallback(() => {
+    setNext(0);
+    attempt.current = 0;
+  }, []);
 
   const timer = useRef<number>();
 
