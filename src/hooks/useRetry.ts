@@ -9,11 +9,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  */
 export const useRetry = (
   retry: (attempt: number, bail: () => void) => boolean,
-  options: {
+  options?: {
     delay?: number;
   }
 ) => {
-  const { delay } = options;
+  const { delay } = options ?? {};
   const attempt = useRef(0);
   const [next, setNext] = useState<number>();
 
