@@ -37,7 +37,7 @@ export const useRetry = (
       timer.current = window.setInterval(() => {
         const now = Date.now();
         if (next <= now) {
-          const _retry = retry(_attempt, stop);
+          const _retry = retry(_attempt);
           if (_retry) {
             start(delay);
           } else {
