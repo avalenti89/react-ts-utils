@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * @return [ start( delay?: number ) , stop() ]
  */
 export const useRetry = (
-  retry: (attempt: number, bail: () => void) => boolean,
+  retry: (attempt: number) => boolean,
   options?: {
     delay?: number;
   }
