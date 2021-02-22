@@ -31,19 +31,15 @@ export const useRetry = (
 
   const timer = useRef<() => void>();
 
-  const _run = useCallback(
-    (_running: boolean) => {
-      if (_running) {
-        targetTime.current = delay ? Date.now() + delay : undefined;
-      } else {
-        targetTime.current = undefined;
-        setRemainingTime(undefined);
-      }
-      attempt.current = 0;
-      setRunning(_running);
-    },
-    [delay]
-  );
+  useEffect(() => {
+    if (isRunning) {
+      targetTime.current = delay ? Date.now() + delay : undefined;
+    } else {
+      targetTime.current = undefined;
+      setRemainingTime(undefined);
+    }
+    attempt.current = 0;
+  }, [isRunning]);
 
   useEffect(() => {
     if (targetTime.current && isRunning) {
@@ -57,18 +53,18 @@ export const useRetry = (
             return;
           }
           timer.current?.();
-          _run(false);
+          setRunning(false);
           return;
         },
         _remainingTime => setRemainingTime(_remainingTime)
       );
     }
     return timer.current;
-  }, [isRunning, delay, retry, _run]);
+  }, [isRunning, delay, retry]);
 
   return [
-    () => _run(true),
-    () => _run(false),
+    () => setRunning(true),
+    () => setRunning(false),
     isRunning,
     remainingTime,
     targetTime.current,
