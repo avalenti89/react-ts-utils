@@ -9,7 +9,7 @@
 export const setDelay = (
   delay: number,
   callback: () => void,
-  getRemainingTime: (remainingTime: number) => void,
+  getRemainingTime?: (remainingTime: number) => void,
   tick: number = 1000
 ): (() => void) => {
   const targetTime = Date.now() + delay;
@@ -23,7 +23,7 @@ export const setDelay = (
       callback();
       return window.clearInterval(timer);
     }
-    return getRemainingTime(targetTime - now);
+    return getRemainingTime?.(targetTime - now);
   }, tick);
   return () => window.clearInterval(timer);
 };
