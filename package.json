@@ -33,7 +33,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "react-ts-utils",
+  "name": "@avalenti89/react-ts-utils",
   "author": "avalenti89",
   "repository": {
     "type": "git",
