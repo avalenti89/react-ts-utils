@@ -1,55 +1,76 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { setDelay } from '../utils';
 
 /**
  *
  * @param retry retry until false
  * @param options provide at least one
  *
- * @return [ start( delay?: number ) , stop() ]
+ * @return [start()=>void,stop()=>void,running: boolean, remainingTime: number | undefined, targetTime: number | undefined]
  */
 export const useRetry = (
   retry: (attempt: number) => boolean,
   options?: {
     delay?: number;
   }
-) => {
+): [
+  () => void,
+  () => void,
+  boolean,
+  number | undefined,
+  number | undefined
+] => {
   const { delay } = options ?? {};
   const attempt = useRef(0);
-  const [next, setNext] = useState<number>();
 
-  const start = useCallback(
-    (delay?: number) => setNext(Date.now() + (delay ?? 0)),
-    []
+  const [isRunning, setRunning] = useState(false);
+
+  const [remainingTime, setRemainingTime] = useState<number>();
+
+  const targetTime = useRef<number>();
+
+  const timer = useRef<() => void>();
+
+  const _run = useCallback(
+    (_running: boolean) => {
+      if (_running) {
+        targetTime.current = delay ? Date.now() + delay : undefined;
+      } else {
+        targetTime.current = undefined;
+        setRemainingTime(undefined);
+      }
+      attempt.current = 0;
+      setRunning(_running);
+    },
+    [delay]
   );
-  const stop = useCallback(() => {
-    setNext(0);
-    attempt.current = 0;
-  }, []);
-
-  const timer = useRef<number>();
 
   useEffect(() => {
-    attempt.current = 0;
-  }, [delay, retry]);
-
-  useEffect(() => {
-    window.clearInterval(timer.current);
-    if (next) {
-      attempt.current++;
-      const { current: _attempt } = attempt;
-      timer.current = window.setInterval(() => {
-        const now = Date.now();
-        if (next <= now) {
-          const _retry = retry(_attempt);
-          if (_retry) {
-            start(delay);
-          } else {
-            stop();
+    if (targetTime.current && isRunning) {
+      timer.current = setDelay(
+        targetTime.current,
+        () => {
+          attempt.current++;
+          const repeat = retry(attempt.current);
+          if (repeat) {
+            targetTime.current = Date.now() + (delay ?? 0);
+            return;
           }
-        }
-      });
+          timer.current?.();
+          _run(false);
+          return;
+        },
+        _remainingTime => setRemainingTime(_remainingTime)
+      );
     }
-  }, [next, delay, start, stop, retry]);
+    return timer.current;
+  }, [isRunning, delay, retry, _run]);
 
-  return [start, stop];
+  return [
+    () => _run(true),
+    () => _run(false),
+    isRunning,
+    remainingTime,
+    targetTime.current,
+  ];
 };
