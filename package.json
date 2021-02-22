@@ -34,7 +34,11 @@
     "trailingComma": "es5"
   },
   "name": "react-ts-utils",
-  "author": "Enuan",
+  "author": "avalenti89",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avalenti89/react-ts-utils"
+  },
   "module": "dist/react-ts-utils.esm.js",
   "size-limit": [
     {
