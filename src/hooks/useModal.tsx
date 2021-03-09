@@ -11,7 +11,7 @@ export const useModal = (
   const open = () => toggleIsOpen(true);
   const close = () => toggleIsOpen(false);
 
-  const Modal = ({ children }: { children: React.ReactChild }) =>
+  const Modal = ({ children }: React.PropsWithChildren<{}>) =>
     isOpen ? <Portal target={target}>{children}</Portal> : null;
 
   return {
