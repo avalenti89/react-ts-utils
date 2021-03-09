@@ -2,12 +2,10 @@ import React from 'react';
 import { IPortalProps, Portal } from '../components/portal/Portal';
 import { useToggle } from './useToggle';
 
-interface IUseModalProps {
-  target: IPortalProps['target'];
-  defaultIsOpen?: boolean;
-}
-export const useModal = (props: IUseModalProps) => {
-  const { defaultIsOpen, target } = props;
+export const useModal = (
+  target: IPortalProps['target'],
+  defaultIsOpen?: boolean
+) => {
   const [isOpen, toggleIsOpen] = useToggle(defaultIsOpen);
 
   const open = () => toggleIsOpen(true);
