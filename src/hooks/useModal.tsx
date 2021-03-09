@@ -11,14 +11,14 @@ export const useModal = (
   const open = () => toggleIsOpen(true);
   const close = () => toggleIsOpen(false);
 
-  const RenderModal = ({ children }: { children: React.ReactChild }) =>
-    isOpen && <Portal target={target}>{children}</Portal>;
+  const Modal = ({ children }: { children: React.ReactChild }) =>
+    isOpen ? <Portal target={target}>{children}</Portal> : null;
 
   return {
     open,
     close,
     toggle: toggleIsOpen,
-    RenderModal,
+    Modal,
     isOpen,
   };
 };
