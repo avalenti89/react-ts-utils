@@ -1,18 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ToggablePortal } from '../components';
 import { IPortalProps } from '../components/portal/Portal';
-import { useToggle } from './useToggle';
 
 export const useModal = (
   target: IPortalProps['target'],
-  defaultIsOpen?: boolean
+  defaultIsOpen: boolean = false
 ) => {
-  const [isOpen, toggleIsOpen] = useToggle(defaultIsOpen);
+  const [isOpen, setIsOpen] = useState(defaultIsOpen);
 
-  const open = useCallback(() => toggleIsOpen(true), [toggleIsOpen]);
-  const close = useCallback(() => toggleIsOpen(false), [toggleIsOpen]);
-
-  const Modal = useCallback(
+  const open = useCallback(() => setIsOpen(true), []);
+  const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback((value: boolean = !isOpen) => setIsOpen(value), [
+    isOpen,
+  ]);
+  const Modal = useCallback<React.FC>(
     ({ children }: React.PropsWithChildren<{}>) => (
       <ToggablePortal target={target} isActive={isOpen}>
         {children}
@@ -24,7 +25,7 @@ export const useModal = (
   return {
     open,
     close,
-    toggle: toggleIsOpen,
+    toggle,
     Modal,
     isOpen,
   };
