@@ -26,6 +26,7 @@ export const useModal = (
     open,
     close,
     toggle,
+    set: setIsOpen,
     Modal,
     isOpen,
   };
