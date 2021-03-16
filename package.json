@@ -22,12 +22,6 @@
   "peerDependencies": {
     "react": ">=16"
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
   "name": "@avalenti89/react-ts-utils",
   "author": "avalenti89",
   "repository": {
