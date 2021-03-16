@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-enum Status {
+export enum MediaRecorderStatus {
 	IDLE = 'idle',
 	INVALID_CONSTRAINTS = 'invalid_constraints',
 	RECORDING = 'recording',
 	STOPPED = 'stopped'
 }
 
-type IMediaRecorderProps = (
+export type IMediaRecorderProps = (
 	| {
 			audio: true | MediaTrackConstraints;
 			video?: boolean | MediaTrackConstraints;
@@ -26,7 +26,9 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	const isSupported = useMemo(() => {
 		return !!navigator.mediaDevices.getUserMedia;
 	}, []);
-	const [status, setStatus] = useState<Status>(Status.IDLE);
+	const [status, setStatus] = useState<MediaRecorderStatus>(
+		MediaRecorderStatus.IDLE
+	);
 	const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
 	const audioChunks = useRef<Blob[]>([]);
 
@@ -38,11 +40,11 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 			mediaRecorder.addEventListener('dataavailable', dataavailable);
 
 			const stop = () => {
-				setStatus(Status.STOPPED);
+				setStatus(MediaRecorderStatus.STOPPED);
 			};
 			mediaRecorder.addEventListener('stop', stop);
 			mediaRecorder.start();
-			setStatus(Status.RECORDING);
+			setStatus(MediaRecorderStatus.RECORDING);
 			return () => {
 				mediaRecorder.removeEventListener('dataavailable', dataavailable);
 				mediaRecorder.removeEventListener('stop', stop);
