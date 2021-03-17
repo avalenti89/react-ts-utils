@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 export enum MediaRecorderStatus {
 	IDLE = 'idle',
@@ -29,29 +29,23 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	const [status, setStatus] = useState<MediaRecorderStatus>(
 		MediaRecorderStatus.IDLE
 	);
-	const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
 	const audioChunks = useRef<Blob[]>([]);
+	const mediaRecorder = useRef<MediaRecorder>();
 
-	useEffect(() => {
-		if (mediaRecorder) {
-			const dataavailable = (event: BlobEvent) => {
+	const setMediaRecorder = useCallback((_mediaRecorder?: MediaRecorder) => {
+		if (_mediaRecorder) {
+			_mediaRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
 				audioChunks.current.push(event.data);
-			};
-			mediaRecorder.addEventListener('dataavailable', dataavailable);
+			});
 
-			const stop = () => {
+			_mediaRecorder.addEventListener('stop', () => {
 				setStatus(MediaRecorderStatus.STOPPED);
-			};
-			mediaRecorder.addEventListener('stop', stop);
-			mediaRecorder.start();
+			});
 			setStatus(MediaRecorderStatus.RECORDING);
-			return () => {
-				mediaRecorder.removeEventListener('dataavailable', dataavailable);
-				mediaRecorder.removeEventListener('stop', stop);
-			};
+			_mediaRecorder.start();
 		}
-		return;
-	}, [mediaRecorder]);
+		mediaRecorder.current = _mediaRecorder;
+	}, []);
 
 	const blob = useMemo(() => {
 		if (!!audioChunks.current.length) {
@@ -66,13 +60,13 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 				setMediaRecorder(new MediaRecorder(stream));
 			});
 		}
-	}, [isSupported, audio, video]);
+	}, [isSupported, audio, video, setMediaRecorder]);
 
 	const stopRecording = useCallback(() => {
-		mediaRecorder?.stream.getTracks().forEach((track) => {
+		mediaRecorder.current?.stream.getTracks().forEach((track) => {
 			track.stop();
 		});
-	}, [mediaRecorder]);
+	}, []);
 
 	return {
 		startRecording,
