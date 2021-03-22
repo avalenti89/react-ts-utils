@@ -80,6 +80,7 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 		stopRecording,
 		blob,
 		audioChunks,
-		status
+		status,
+		isSupported
 	};
 };
