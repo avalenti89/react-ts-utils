@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export enum MediaRecorderStatus {
 	IDLE = 'idle',
 	INVALID_CONSTRAINTS = 'invalid_constraints',
 	RECORDING = 'recording',
 	STOPPED = 'stopped',
-	ERROR = 'error'
+	ERROR = 'error',
+	NOT_SUPPORTED = 'not_supported'
 }
 
 export type IMediaRecorderProps = (
@@ -24,12 +25,17 @@ export type IMediaRecorderProps = (
 export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	const { audio, video, type } = props;
 
-	const isSupported = useMemo(() => {
-		return !!navigator.mediaDevices.getUserMedia;
-	}, []);
 	const [status, setStatus] = useState<MediaRecorderStatus>(
 		MediaRecorderStatus.IDLE
 	);
+
+	const isSupported = useMemo(() => {
+		return !!navigator.mediaDevices.getUserMedia;
+	}, []);
+	useEffect(() => {
+		if (!isSupported) setStatus(MediaRecorderStatus.NOT_SUPPORTED);
+	}, [isSupported]);
+
 	const audioChunks = useRef<Blob[]>([]);
 	const mediaRecorder = useRef<MediaRecorder>();
 
@@ -42,7 +48,7 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 			_mediaRecorder.addEventListener('stop', () => {
 				setStatus(MediaRecorderStatus.STOPPED);
 			});
-			setStatus(MediaRecorderStatus.RECORDING);
+
 			_mediaRecorder.start();
 		}
 		mediaRecorder.current = _mediaRecorder;
@@ -57,6 +63,7 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 
 	const startRecording = useCallback(() => {
 		if (isSupported) {
+			setStatus(MediaRecorderStatus.RECORDING);
 			navigator.mediaDevices
 				.getUserMedia({ audio, video })
 				.then((stream) => {
