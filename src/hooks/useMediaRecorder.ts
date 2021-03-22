@@ -4,7 +4,8 @@ export enum MediaRecorderStatus {
 	IDLE = 'idle',
 	INVALID_CONSTRAINTS = 'invalid_constraints',
 	RECORDING = 'recording',
-	STOPPED = 'stopped'
+	STOPPED = 'stopped',
+	ERROR = 'error'
 }
 
 export type IMediaRecorderProps = (
@@ -56,9 +57,15 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 
 	const startRecording = useCallback(() => {
 		if (isSupported) {
-			navigator.mediaDevices.getUserMedia({ audio, video }).then((stream) => {
-				setMediaRecorder(new MediaRecorder(stream));
-			});
+			navigator.mediaDevices
+				.getUserMedia({ audio, video })
+				.then((stream) => {
+					setMediaRecorder(new MediaRecorder(stream));
+				})
+				.catch((e) => {
+					console.error(e);
+					setStatus(MediaRecorderStatus.ERROR);
+				});
 		}
 	}, [isSupported, audio, video, setMediaRecorder]);
 
