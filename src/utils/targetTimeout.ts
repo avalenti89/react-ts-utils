@@ -1,4 +1,4 @@
-const targetTimeout = (
+export const targetTimeout = (
 	_targetTime: Date | string | number,
 	callback: () => void,
 	options?: { precision?: number; onTick?: () => void }
