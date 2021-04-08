@@ -1,10 +1,9 @@
 export const targetTimeout = (
 	_targetTime: Date | string | number,
 	callback: () => void,
-	options?: { precision?: number; onTick?: () => void }
+	options?: { precision?: number; onTick?: (stop: () => void) => void }
 ) => {
 	const { precision, onTick } = options ?? {};
-	onTick?.();
 	let targetTime: Date;
 	if (typeof _targetTime === 'string' || typeof _targetTime === 'number') {
 		targetTime = new Date(_targetTime);
@@ -15,8 +14,9 @@ export const targetTimeout = (
 	if (Date.now() >= targetTime.valueOf()) {
 		callback();
 	} else {
-		window.setTimeout(() => {
+		const timeoutc = window.setTimeout(() => {
 			targetTimeout(targetTime, callback, options);
 		}, precision ?? 1000);
+		onTick?.(() => window.clearTimeout(timeoutc));
 	}
 };
