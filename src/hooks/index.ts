@@ -1,3 +1,4 @@
+export * from './useMedia';
 export * from './useDebouce';
 export * from './useForwardedRef';
 export * from './useMediaRecorder';
