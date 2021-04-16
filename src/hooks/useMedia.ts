@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { KeyString } from '../types/KeyString';
 import { useWindowSize } from './useWindowSize';
 
 /**
@@ -6,10 +7,13 @@ import { useWindowSize } from './useWindowSize';
  */
 type MediaQueries = { [key: string]: number | [number, number] };
 
-export const useMedia = (mediaqueries: MediaQueries) => {
+export const useMedia = <T extends MediaQueries>(mediaqueries: T) => {
 	const [windowSize] = useWindowSize();
 	const { width } = windowSize ?? {};
-	const mqEntries = Object.entries(mediaqueries);
+	const mqEntries = Object.entries(mediaqueries) as [
+		KeyString<T>,
+		number | [number, number]
+	][];
 
 	const mqSorted = useMemo(
 		() =>
