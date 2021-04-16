@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback, useLayoutEffect as useEffect, useState } from 'react';
 import { Size } from '../types/Size';
 /**
  *
@@ -22,8 +22,9 @@ export const useWindowSize = (): [Size | null, () => void, () => void] => {
 		window.removeEventListener('resize', handleResize);
 	}, [handleResize]);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		handleResize();
+		startListener();
 		return stopListener;
 	}, [handleResize, startListener, stopListener]);
 
