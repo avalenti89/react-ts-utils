@@ -19,19 +19,17 @@ export type IMediaRecorderProps = (
 			video: true | MediaTrackConstraints;
 	  }
 ) & {
-	type: string;
+	mimetype: string;
 };
 
 export const useMediaRecorder = (props: IMediaRecorderProps) => {
-	const { audio, video, type } = props;
+	const { audio, video, mimetype } = props;
 
 	const [status, setStatus] = useState<MediaRecorderStatus>(
 		MediaRecorderStatus.IDLE
 	);
 
-	const isSupported = useMemo(() => {
-		return !!navigator.mediaDevices.getUserMedia;
-	}, []);
+	const isSupported = !!navigator.mediaDevices.getUserMedia;
 	useEffect(() => {
 		if (!isSupported) setStatus(MediaRecorderStatus.NOT_SUPPORTED);
 	}, [isSupported]);
@@ -39,10 +37,15 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	const audioChunks = useRef<Blob[]>([]);
 	const mediaRecorder = useRef<MediaRecorder>();
 
-	const setMediaRecorder = useCallback((_mediaRecorder?: MediaRecorder) => {
-		if (_mediaRecorder) {
-			_mediaRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
-				audioChunks.current.push(event.data);
+	const setMediaRecorder = useCallback(
+		(stream: MediaStream) => {
+			const _mediaRecorder = new MediaRecorder(stream);
+			_mediaRecorder.addEventListener('start', () => {
+				setStatus(MediaRecorderStatus.RECORDING);
+			});
+
+			_mediaRecorder.addEventListener('dataavailable', (blob: BlobEvent) => {
+				audioChunks.current.push(blob.data);
 			});
 
 			_mediaRecorder.addEventListener('stop', () => {
@@ -50,25 +53,24 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 			});
 
 			_mediaRecorder.start();
-		}
-		mediaRecorder.current = _mediaRecorder;
-	}, []);
+			mediaRecorder.current = _mediaRecorder;
+		},
+		[status]
+	);
 
 	const blob = useMemo(() => {
 		if (!!audioChunks.current.length) {
-			return new Blob(audioChunks.current, { type });
+			return new Blob(audioChunks.current, { type: mimetype });
 		}
 		return null;
-	}, [status, type]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [status, mimetype]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const startRecording = useCallback(() => {
+		audioChunks.current = [];
 		if (isSupported) {
-			setStatus(MediaRecorderStatus.RECORDING);
 			navigator.mediaDevices
 				.getUserMedia({ audio, video })
-				.then((stream) => {
-					setMediaRecorder(new MediaRecorder(stream));
-				})
+				.then(setMediaRecorder)
 				.catch((e) => {
 					console.error(e);
 					setStatus(MediaRecorderStatus.ERROR);
@@ -77,10 +79,13 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	}, [isSupported, audio, video, setMediaRecorder]);
 
 	const stopRecording = useCallback(() => {
-		mediaRecorder.current?.stream.getTracks().forEach((track) => {
-			track.stop();
-		});
-	}, []);
+		if (status === MediaRecorderStatus.RECORDING) {
+			mediaRecorder.current?.stream.getTracks().forEach((track) => {
+				track.stop();
+			});
+			mediaRecorder.current?.stop();
+		}
+	}, [status]);
 
 	return {
 		startRecording,
