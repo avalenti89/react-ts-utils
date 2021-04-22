@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-export enum MediaRecorderStatus {
-	IDLE = 'idle',
-	INVALID_CONSTRAINTS = 'invalid_constraints',
-	RECORDING = 'recording',
-	STOPPED = 'stopped',
-	ERROR = 'error',
-	NOT_SUPPORTED = 'not_supported'
-}
+import { RecorderStatus } from '../types/RecorderStatus';
 
 export type IMediaRecorderProps = (
 	| {
@@ -25,13 +17,11 @@ export type IMediaRecorderProps = (
 export const useMediaRecorder = (props: IMediaRecorderProps) => {
 	const { audio, video, mimetype } = props;
 
-	const [status, setStatus] = useState<MediaRecorderStatus>(
-		MediaRecorderStatus.IDLE
-	);
+	const [status, setStatus] = useState<RecorderStatus>(RecorderStatus.IDLE);
 
 	const isSupported = !!navigator.mediaDevices.getUserMedia;
 	useEffect(() => {
-		if (!isSupported) setStatus(MediaRecorderStatus.NOT_SUPPORTED);
+		if (!isSupported) setStatus(RecorderStatus.NOT_SUPPORTED);
 	}, [isSupported]);
 
 	const audioChunks = useRef<Blob[]>([]);
@@ -41,7 +31,7 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 		(stream: MediaStream) => {
 			const _mediaRecorder = new MediaRecorder(stream);
 			_mediaRecorder.addEventListener('start', () => {
-				setStatus(MediaRecorderStatus.RECORDING);
+				setStatus(RecorderStatus.RECORDING);
 			});
 
 			_mediaRecorder.addEventListener('dataavailable', (blob: BlobEvent) => {
@@ -49,7 +39,11 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 			});
 
 			_mediaRecorder.addEventListener('stop', () => {
-				setStatus(MediaRecorderStatus.STOPPED);
+				setStatus(RecorderStatus.STOPPED);
+			});
+
+			_mediaRecorder.addEventListener('error', (e) => {
+				console.error(e.error);
 			});
 
 			_mediaRecorder.start();
@@ -73,13 +67,13 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 				.then(setMediaRecorder)
 				.catch((e) => {
 					console.error(e);
-					setStatus(MediaRecorderStatus.ERROR);
+					setStatus(RecorderStatus.ERROR);
 				});
 		}
 	}, [isSupported, audio, video, setMediaRecorder]);
 
 	const stopRecording = useCallback(() => {
-		if (status === MediaRecorderStatus.RECORDING) {
+		if (status === RecorderStatus.RECORDING) {
 			mediaRecorder.current?.stream.getTracks().forEach((track) => {
 				track.stop();
 			});
