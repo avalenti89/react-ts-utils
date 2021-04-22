@@ -50,5 +50,8 @@
 		"tsdx": "^0.14.1",
 		"tslib": "^2.1.0",
 		"typescript": "^4.2.4"
+	},
+	"dependencies": {
+		"mic-recorder-to-mp3": "^2.2.2"
 	}
 }
