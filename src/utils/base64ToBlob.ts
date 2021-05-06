@@ -1,4 +1,4 @@
-export const base64toBlob = (
+export const base64ToBlob = (
 	base64: string,
 	mimeType: string = '',
 	sliceSize: number = 512
