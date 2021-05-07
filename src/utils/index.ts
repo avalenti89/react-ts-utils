@@ -4,3 +4,4 @@ export * from './fileToBase64';
 export * from './readingTime';
 export * from './setDelay';
 export * from './targetTimeout';
+export * from './uglyBytes';
