@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { KeyString } from '../types/KeyString';
+import { KeyString } from '@avalenti89/typescript-utils';
 import { useWindowSize } from './useWindowSize';
 
 /**

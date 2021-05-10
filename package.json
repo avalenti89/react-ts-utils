@@ -21,7 +21,8 @@
 	},
 	"peerDependencies": {
 		"react": ">=16",
-		"react-dom": ">=17"
+		"react-dom": ">=17",
+		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git"
 	},
 	"name": "@avalenti89/react-ts-utils",
 	"author": "avalenti89",
@@ -49,7 +50,8 @@
 		"size-limit": "^4.9.2",
 		"tsdx": "^0.14.1",
 		"tslib": "^2.1.0",
-		"typescript": "^4.2.4"
+		"typescript": "^4.2.4",
+		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git"
 	},
 	"dependencies": {
 		"mic-recorder-to-mp3": "^2.2.2"
