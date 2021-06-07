@@ -22,7 +22,9 @@
 	"peerDependencies": {
 		"react": ">=16",
 		"react-dom": ">=17",
-		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git"
+		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git",
+		"@emotion/cache": "^11.4.0",
+		"@emotion/react": "^11.4.0"
 	},
 	"name": "@avalenti89/react-ts-utils",
 	"author": "avalenti89",
