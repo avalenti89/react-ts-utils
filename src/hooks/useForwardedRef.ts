@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 
-export const useForwardedRef = <T extends HTMLElement>(ref: React.Ref<T>) => {
+export const useForwardedRef = <T extends HTMLElement>(ref?: React.Ref<T> | null) => {
 	const innerRef = useRef<T>(null);
 	useEffect(() => {
 		if (!ref) return;
