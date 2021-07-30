@@ -53,9 +53,10 @@
 		"tsdx": "^0.14.1",
 		"tslib": "^2.1.0",
 		"typescript": "^4.2.4",
-		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git"
+		"@avalenti89/typescript-utils": "git+https://github.com/avalenti89/typescript-utils.git",
+		"mic-recorder-to-mp3": "^2.2.2"
 	},
-	"dependencies": {
+	"peerDependencies": {
 		"mic-recorder-to-mp3": "^2.2.2"
 	}
 }
