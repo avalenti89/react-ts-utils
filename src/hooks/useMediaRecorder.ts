@@ -42,9 +42,12 @@ export const useMediaRecorder = (props: IMediaRecorderProps) => {
 				setStatus(RecorderStatus.STOPPED);
 			});
 
-			_mediaRecorder.addEventListener('error', (e) => {
-				console.error(e.error);
-			});
+			_mediaRecorder.addEventListener(
+				'error',
+				(e: Event & { error?: string }) => {
+					console.error(e.error);
+				}
+			);
 
 			_mediaRecorder.start();
 			mediaRecorder.current = _mediaRecorder;
