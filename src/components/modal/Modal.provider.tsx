@@ -1,5 +1,5 @@
 import { IPortalProps, ToggablePortal } from 'components';
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 type IModalContextState = {
 	isOpen: boolean;
