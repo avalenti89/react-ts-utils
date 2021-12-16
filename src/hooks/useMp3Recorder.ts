@@ -1,12 +1,10 @@
 import MicRecorder, { Config } from 'mic-recorder-to-mp3';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RecorderStatus } from '../types/RecorderStatus';
+import { v4 as uuidV4 } from 'uuid';
 
 export const useMp3Recorder = (config?: Config) => {
 	const [status, setStatus] = useState<RecorderStatus>(RecorderStatus.IDLE);
-
-	const [blob, setBlob] = useState<Blob>();
-	const [buffer, setBuffer] = useState<Buffer[]>();
 
 	const recorder = useMemo(
 		() =>
@@ -24,40 +22,44 @@ export const useMp3Recorder = (config?: Config) => {
 
 	const start = useCallback(() => {
 		if (isSupported) {
-			recorder
+			return recorder
 				.start()
-				.then(() => {
+				.then((a) => {
 					setStatus(RecorderStatus.RECORDING);
+					return a;
 				})
 				.catch((e) => {
-					console.error(e);
 					setStatus(RecorderStatus.ERROR);
+					throw e;
 				});
 		}
+		return Promise.reject(RecorderStatus.NOT_SUPPORTED);
 	}, [recorder, isSupported]);
 
 	const stop = useCallback(() => {
 		if (isSupported) {
-			recorder
+			return recorder
 				.stop()
 				.getMp3()
-				.then(([_buffer, _blob]) => {
-					setBlob(_blob);
-					setBuffer(_buffer);
+				.then(([buffer, blob]) => {
 					setStatus(RecorderStatus.STOPPED);
+					const file = new File(buffer, `${uuidV4()}.mp3`, {
+						type: blob.type,
+						lastModified: Date.now()
+					});
+					return { file, buffer, blob };
 				})
 				.catch((e) => {
-					console.log(e);
 					setStatus(RecorderStatus.ERROR);
+					throw e;
 				});
 		}
+		return Promise.reject(RecorderStatus.NOT_SUPPORTED);
 	}, [recorder, isSupported]);
 
 	return {
 		start,
 		stop,
-		blob,
-		buffer,
 		status,
 		recorder,
 		isSupported
