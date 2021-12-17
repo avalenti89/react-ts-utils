@@ -4,5 +4,6 @@ export enum RecorderStatus {
 	RECORDING = 'recording',
 	STOPPED = 'stopped',
 	ERROR = 'error',
-	NOT_SUPPORTED = 'not_supported'
+	NOT_SUPPORTED = 'not_supported',
+	INSECURE = 'insecure',
 }

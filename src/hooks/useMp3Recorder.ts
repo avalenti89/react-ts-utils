@@ -10,12 +10,18 @@ export const useMp3Recorder = (config?: Config) => {
 		() =>
 			new MicRecorder({
 				bitRate: 128,
-				...config
+				...config,
 			}),
 		[config]
 	);
 
-	const isSupported = !!navigator.mediaDevices.getUserMedia;
+	const mediaDevices = navigator.mediaDevices;
+	const isSecured = !!mediaDevices;
+	useEffect(() => {
+		if (!isSecured) setStatus(RecorderStatus.INSECURE);
+	}, [isSecured]);
+
+	const isSupported = isSecured && !!mediaDevices?.getUserMedia;
 	useEffect(() => {
 		if (!isSupported) setStatus(RecorderStatus.NOT_SUPPORTED);
 	}, [isSupported]);
@@ -45,7 +51,7 @@ export const useMp3Recorder = (config?: Config) => {
 					setStatus(RecorderStatus.STOPPED);
 					const file = new File(buffer, `${uuidV4()}.mp3`, {
 						type: blob.type,
-						lastModified: Date.now()
+						lastModified: Date.now(),
 					});
 					return { file, buffer, blob };
 				})
@@ -62,6 +68,6 @@ export const useMp3Recorder = (config?: Config) => {
 		stop,
 		status,
 		recorder,
-		isSupported
+		isSupported,
 	};
 };
