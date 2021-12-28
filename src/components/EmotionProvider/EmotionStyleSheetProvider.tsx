@@ -1,25 +1,18 @@
-import * as React from 'react';
-
+import React from 'react';
 import { CacheProvider } from '@emotion/react';
 import createCache, { EmotionCache, Options } from '@emotion/cache';
 
-type Props = Options & {
-	children: React.ReactNode;
-};
-
-export default function EmotionStyleSheetProvider({
+export const EmotionStyleSheetProvider = ({
 	children,
 	...props
-}: Props): React.ReactElement {
+}: React.PropsWithChildren<Options>) => {
 	const [cache, setCache] = React.useState<EmotionCache | null>(null);
 
 	React.useEffect(() => {
 		setCache(createCache(props));
 	}, [props]);
 
-	return (
-		<>
-			{cache != null && <CacheProvider value={cache}>{children}</CacheProvider>}
-		</>
-	);
-}
+	if (cache === null) return null;
+
+	return <CacheProvider value={cache}>{children}</CacheProvider>;
+};
