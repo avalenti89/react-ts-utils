@@ -29,10 +29,11 @@
 		"watch": "rollup -c -w & npm run alias:watch",
 		"alias": "tsc-alias -p tsconfig.aliases.json",
 		"alias:watch": "tsc-alias -p tsconfig.aliases.json -w",
-		"prepare": "npm run build"
+		"prepare": "npm run build",
+		"publish": "npm publish"
 	},
 	"peerDependencies": {
-		"@avalenti89/typescript-utils": "^0.1.10",
+		"@avalenti89/typescript-utils": "^0.4.0",
 		"@emotion/cache": "^11.4.0",
 		"@emotion/react": "^11.4.0",
 		"mic-recorder-to-mp3": "^2.2.2",
@@ -42,7 +43,7 @@
 		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
-		"@avalenti89/typescript-utils": "^0.1.10",
+		"@avalenti89/typescript-utils": "^0.4.0",
 		"@types/dom-mediacapture-record": "^1.0.10",
 		"@types/react": "^17.0.20",
 		"@types/react-dom": "^17.0.9",
