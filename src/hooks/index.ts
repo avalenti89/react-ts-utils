@@ -9,4 +9,5 @@ export * from './useMp3Recorder';
 export * from './usePrev';
 export * from './useRetry';
 export * from './useToggle';
+export * from './useUpdatedState';
 export * from './useWindowSize';
