@@ -13,7 +13,7 @@ type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
  * @param messages defineMessages dict
  * @param overrideFallbackId It will stored/used as ref.
  * If provided, it will used to overrides message if this result as id (default fallback).
- * - If true, it will be returned as empty string
+ * - If true, it will be returned as undefined
  * - If string, it will be returned as provided string
  * - If function, the returns will be used as described above
  * @returns A dict of functions with the same parameters of "formatMessage"
@@ -46,7 +46,7 @@ export const useMessages = <T extends Record<string, MessageDescriptor>>(
 								fallback = overrideRef.current;
 							}
 							if (text === message.id && fallback) {
-								return fallback === true ? '' : fallback;
+								return fallback === true ? undefined : fallback;
 							}
 							return text;
 						},
