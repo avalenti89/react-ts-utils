@@ -2,10 +2,16 @@ import { DropFirst } from '@avalenti89/typescript-utils';
 import { useMemo, useRef } from 'react';
 import { IntlFormatters, MessageDescriptor, useIntl } from 'react-intl';
 
+type ForceDefault = boolean | string | undefined;
 type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
-type Messages<T extends Record<string, MessageDescriptor>> = Record<
+type Messages<
+	T extends Record<string, MessageDescriptor>,
+	F extends ForceDefault = undefined
+> = Record<
 	keyof T,
-	(...args: FormatMessageArgs) => string | undefined
+	(
+		...args: FormatMessageArgs
+	) => F extends false | string | undefined ? string : undefined
 >;
 
 const getFallback = (
@@ -26,23 +32,18 @@ const getFallback = (
  * - If function, the returns will be used as described above
  * @returns A dict of functions with the same parameters of "formatMessage"
  */
-export const useMessages = <T extends Record<string, MessageDescriptor>>(
+export const useMessages = <
+	T extends Record<string, MessageDescriptor>,
+	F extends ForceDefault = undefined
+>(
 	messages: T,
-	forceDefaultMessageFallback?:
-		| boolean
-		| string
-		| undefined
-		| ((
-				text: string,
-				message: MessageDescriptor,
-				args: FormatMessageArgs
-		  ) => boolean | string | undefined)
-): Messages<T> => {
+	forceDefaultMessageFallback?: F
+): Messages<T, F> => {
 	const overrideRef = useRef(forceDefaultMessageFallback);
 	const intl = useIntl();
 	const _messages = useMemo(
 		() => ({
-			...Object.entries(messages).reduce<Messages<T>>(
+			...Object.entries(messages).reduce<Messages<T, F>>(
 				(prev, [key, message]) => {
 					return {
 						...prev,
@@ -52,12 +53,7 @@ export const useMessages = <T extends Record<string, MessageDescriptor>>(
 								typeof message.defaultMessage === 'string'
 									? message.defaultMessage
 									: undefined;
-							const fallback = getFallback(
-								typeof overrideRef.current === 'function'
-									? overrideRef.current(text, message, args)
-									: overrideRef.current,
-								defaultMessage
-							);
+							const fallback = getFallback(overrideRef.current, defaultMessage);
 							if (text === message.id && fallback !== false) {
 								return fallback;
 							}
@@ -65,7 +61,7 @@ export const useMessages = <T extends Record<string, MessageDescriptor>>(
 						},
 					};
 				},
-				{} as Messages<T>
+				{} as Messages<T, F>
 			),
 		}),
 		[intl, messages]
