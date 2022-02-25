@@ -18,7 +18,7 @@ const getFallback = (
 	value: boolean | string | undefined,
 	defaultMessage: string | undefined
 ): false | string | undefined => {
-	return value === true ? defaultMessage : value;
+	return value === true ? defaultMessage || undefined : value;
 };
 
 /**
