@@ -2,17 +2,25 @@ import { DropFirst } from '@avalenti89/typescript-utils';
 import { useMemo, useRef } from 'react';
 import { IntlFormatters, MessageDescriptor, useIntl } from 'react-intl';
 
+type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
 type Messages<T extends Record<string, MessageDescriptor>> = Record<
 	keyof T,
-	(...args: DropFirst<Parameters<IntlFormatters['formatMessage']>>) => string
+	(...args: FormatMessageArgs) => string | undefined
 >;
 
-type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
+const getFallback = (
+	value: boolean | string | undefined,
+	defaultMessage: string | undefined
+): false | string | undefined => {
+	return value === true ? defaultMessage : value;
+};
+
 /**
  *
  * @param messages defineMessages dict
- * @param overrideFallbackId It will stored/used as ref.
- * If provided, it will used to overrides message if this result as id (default fallback).
+ * @param forceDefaultMessageFallback It will stored/used as ref.
+ * Default behaviour if there is no default message, is to return the ID (defaultMessage == undefined => id).
+ * If provided, it will used to overrides default behaviour.
  * - If true, it will be returned as undefined
  * - If string, it will be returned as provided string
  * - If function, the returns will be used as described above
@@ -20,16 +28,17 @@ type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
  */
 export const useMessages = <T extends Record<string, MessageDescriptor>>(
 	messages: T,
-	overrideFallbackId?:
+	forceDefaultMessageFallback?:
 		| boolean
 		| string
+		| undefined
 		| ((
 				text: string,
 				message: MessageDescriptor,
 				args: FormatMessageArgs
-		  ) => boolean | string)
+		  ) => boolean | string | undefined)
 ): Messages<T> => {
-	const overrideRef = useRef(overrideFallbackId);
+	const overrideRef = useRef(forceDefaultMessageFallback);
 	const intl = useIntl();
 	const _messages = useMemo(
 		() => ({
@@ -39,14 +48,18 @@ export const useMessages = <T extends Record<string, MessageDescriptor>>(
 						...prev,
 						[key]: (...args: FormatMessageArgs) => {
 							const text = intl.formatMessage(message, ...args);
-							let fallback: boolean | string | undefined;
-							if (typeof overrideRef.current === 'function') {
-								fallback = overrideRef.current(text, message, args);
-							} else {
-								fallback = overrideRef.current;
-							}
-							if (text === message.id && fallback) {
-								return fallback === true ? undefined : fallback;
+							const defaultMessage =
+								typeof message.defaultMessage === 'string'
+									? message.defaultMessage
+									: undefined;
+							const fallback = getFallback(
+								typeof overrideRef.current === 'function'
+									? overrideRef.current(text, message, args)
+									: overrideRef.current,
+								defaultMessage
+							);
+							if (text === message.id && fallback !== false) {
+								return fallback;
 							}
 							return text;
 						},
