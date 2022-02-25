@@ -11,7 +11,7 @@ type Messages<
 	keyof T,
 	(
 		...args: FormatMessageArgs
-	) => F extends false | string | undefined ? string : undefined
+	) => F extends false | string | undefined ? string : string | undefined
 >;
 
 const getFallback = (
