@@ -1,4 +1,4 @@
-import { IPortalProps, ToggablePortal } from 'components';
+import { IPortalProps, ToggablePortal } from 'components/portal';
 import React, { createContext, useEffect, useState } from 'react';
 
 type IModalContextState = {
