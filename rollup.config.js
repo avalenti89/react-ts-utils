@@ -11,7 +11,7 @@ let includePathOptions = {
 	include: {},
 	paths: ['src'],
 	external: [],
-	extensions: ['.ts']
+	extensions: ['.ts'],
 };
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -21,13 +21,11 @@ export default {
 		{
 			file: packageJson.main,
 			format: 'cjs', // commonJS
-			sourcemap: true
 		},
 		{
 			file: packageJson.module,
 			format: 'esm',
-			sourcemap: true
-		}
+		},
 	],
 	preserveSymlinks: true,
 	external: {},
@@ -35,15 +33,15 @@ export default {
 		peerDepsExternal(),
 		resolve({ jsnext: true, main: true }),
 		commonjs({
-			include: /node_modules/
+			include: /node_modules/,
 		}),
 		babel({
 			exclude: /node_modules/,
-			babelHelpers: 'runtime'
+			babelHelpers: 'runtime',
 		}),
 		typescript({ tsconfig: './tsconfig.json' }),
 
 		json(),
-		includePaths(includePathOptions)
-	]
+		includePaths(includePathOptions),
+	],
 };
