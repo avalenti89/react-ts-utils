@@ -10,3 +10,4 @@ export * from './useRetry';
 export * from './useToggle';
 export * from './useUpdatedState';
 export * from './useWindowSize';
+export * from './useDelayedIntersectEffect';
