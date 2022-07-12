@@ -3,14 +3,20 @@ import { useMemo, useRef } from 'react';
 import { IntlFormatters, MessageDescriptor, useIntl } from 'react-intl';
 
 type ForceDefault = boolean | string | undefined;
-type FormatMessageArgs = DropFirst<Parameters<IntlFormatters['formatMessage']>>;
+type FormatMessageValues = DropFirst<
+	Parameters<IntlFormatters['formatMessage']>
+>[0];
+type FormatMessageOpts = DropFirst<
+	Parameters<IntlFormatters['formatMessage']>
+>[1];
 type Messages<
 	T extends Record<string, MessageDescriptor>,
 	F extends ForceDefault = undefined
 > = Record<
 	keyof T,
 	(
-		...args: FormatMessageArgs
+		values: FormatMessageValues,
+		options: FormatMessageOpts & { capitalize?: boolean }
 	) => F extends false | string | undefined ? string : string | undefined
 >;
 
@@ -47,8 +53,8 @@ export const useMessages = <
 				(prev, [key, message]) => {
 					return {
 						...prev,
-						[key]: (...args: FormatMessageArgs) => {
-							const text = intl.formatMessage(message, ...args);
+						[key]: (values, { capitalize, ...opts }) => {
+							const text = intl.formatMessage(message, values, opts);
 							const defaultMessage =
 								typeof message.defaultMessage === 'string'
 									? message.defaultMessage
@@ -57,7 +63,9 @@ export const useMessages = <
 							if (text === message.id && fallback !== false) {
 								return fallback;
 							}
-							return text;
+							return capitalize
+								? text.charAt(0).toUpperCase() + text.slice(1)
+								: text;
 						},
 					};
 				},
