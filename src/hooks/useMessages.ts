@@ -15,8 +15,8 @@ type Messages<
 > = Record<
 	keyof T,
 	(
-		values: FormatMessageValues,
-		options: FormatMessageOpts & { capitalize?: boolean }
+		values?: FormatMessageValues,
+		options?: FormatMessageOpts & { capitalize?: boolean }
 	) => F extends false | string | undefined ? string : string | undefined
 >;
 
@@ -53,7 +53,7 @@ export const useMessages = <
 				(prev, [key, message]) => {
 					return {
 						...prev,
-						[key]: (values, { capitalize, ...opts }) => {
+						[key]: (values, { capitalize, ...opts } = {}) => {
 							const text = intl.formatMessage(message, values, opts);
 							const defaultMessage =
 								typeof message.defaultMessage === 'string'
