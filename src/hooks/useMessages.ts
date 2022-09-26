@@ -1,6 +1,12 @@
 import { DropFirst } from '@avalenti89/typescript-utils';
-import { useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { IntlFormatters, MessageDescriptor, useIntl } from 'react-intl';
+
+type CustomOptions = FormatMessageOpts & { capitalize?: boolean };
+type FormatMessageFn<F extends ForceDefault = undefined> = (
+	values?: FormatMessageValues,
+	options?: CustomOptions
+) => F extends false | string | undefined ? string : string | undefined;
 
 type ForceDefault = boolean | string | undefined;
 type FormatMessageValues = DropFirst<
@@ -12,13 +18,7 @@ type FormatMessageOpts = DropFirst<
 type Messages<
 	T extends Record<string, MessageDescriptor>,
 	F extends ForceDefault = undefined
-> = Record<
-	keyof T,
-	(
-		values?: FormatMessageValues,
-		options?: FormatMessageOpts & { capitalize?: boolean }
-	) => F extends false | string | undefined ? string : string | undefined
->;
+> = Record<keyof T, FormatMessageFn<F>>;
 
 const getFallback = (
 	value: boolean | string | undefined,
@@ -47,32 +47,53 @@ export const useMessages = <
 ): Messages<T, F> => {
 	const overrideRef = useRef(forceDefaultMessageFallback);
 	const intl = useIntl();
+
+	const formatMessage = useCallback(
+		(message: MessageDescriptor) =>
+			(
+				values: FormatMessageValues,
+				{ capitalize, ...opts }: CustomOptions = {}
+			) => {
+				const text = intl.formatMessage(message, values, opts);
+				const defaultMessage =
+					typeof message.defaultMessage === 'string'
+						? message.defaultMessage
+						: undefined;
+				const fallback = getFallback(overrideRef.current, defaultMessage);
+				if (text === message.id && fallback !== false) {
+					return fallback;
+				}
+				return capitalize ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+			},
+		[intl]
+	);
+
 	const _messages = useMemo(
-		() => ({
-			...Object.entries(messages).reduce<Messages<T, F>>(
+		() =>
+			Object.entries(messages).reduce<Messages<T, F>>(
 				(prev, [key, message]) => {
 					return {
 						...prev,
-						[key]: (values, { capitalize, ...opts } = {}) => {
-							const text = intl.formatMessage(message, values, opts);
-							const defaultMessage =
-								typeof message.defaultMessage === 'string'
-									? message.defaultMessage
-									: undefined;
-							const fallback = getFallback(overrideRef.current, defaultMessage);
-							if (text === message.id && fallback !== false) {
-								return fallback;
-							}
-							return capitalize
-								? text.charAt(0).toUpperCase() + text.slice(1)
-								: text;
-						},
+						[key]: formatMessage(message),
+						// [key]: (values, { capitalize, ...opts } = {}) => {
+						// 	const text = intl.formatMessage(message, values, opts);
+						// 	const defaultMessage =
+						// 		typeof message.defaultMessage === 'string'
+						// 			? message.defaultMessage
+						// 			: undefined;
+						// 	const fallback = getFallback(overrideRef.current, defaultMessage);
+						// 	if (text === message.id && fallback !== false) {
+						// 		return fallback;
+						// 	}
+						// 	return capitalize
+						// 		? text.charAt(0).toUpperCase() + text.slice(1)
+						// 		: text;
+						// },
 					};
 				},
 				{} as Messages<T, F>
 			),
-		}),
-		[intl, messages]
+		[formatMessage, messages]
 	);
 
 	return _messages;
