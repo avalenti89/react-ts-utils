@@ -51,7 +51,7 @@ export const useMessages = <
 	const formatMessage = useCallback(
 		(message: MessageDescriptor) =>
 			(
-				values: FormatMessageValues,
+				values?: Record<string, string>,
 				{ capitalize, ...opts }: CustomOptions = {}
 			) => {
 				const text = intl.formatMessage(message, values, opts);
