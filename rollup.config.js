@@ -1,47 +1,43 @@
 import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import packageJson from './package.json';
 import json from '@rollup/plugin-json';
 import babel from '@rollup/plugin-babel';
-import includePaths from 'rollup-plugin-includepaths';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 
-let includePathOptions = {
-	include: {},
-	paths: ['src'],
-	external: [],
-	extensions: ['.ts'],
-};
+const isProduction = process.env.NODE_ENV === 'production';
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {
+const config = {
 	input: './src/index.ts',
 	output: [
 		{
-			file: packageJson.main,
-			format: 'cjs', // commonJS
-		},
-		{
-			file: packageJson.module,
+			file: 'build/index.js',
 			format: 'esm',
+			sourcemap: !isProduction,
 		},
 	],
 	preserveSymlinks: true,
 	external: {},
 	plugins: [
+		typescript({
+			tsconfig: './tsconfig.json',
+		}),
 		peerDepsExternal(),
-		resolve({ jsnext: true, main: true }),
 		commonjs({
 			include: /node_modules/,
 		}),
 		babel({
 			exclude: /node_modules/,
-			babelHelpers: 'runtime',
+			babelHelpers: 'bundled',
+			babelrc: true,
 		}),
-		typescript({ tsconfig: './tsconfig.json' }),
-
+		nodeResolve(),
+		nodePolyfills(),
 		json(),
-		includePaths(includePathOptions),
+		typescriptPaths(),
 	],
 };
+
+export default config;
